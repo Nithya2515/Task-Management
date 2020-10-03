@@ -1,0 +1,82 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @project.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @project.description %>
+</p>
+
+<p>
+  <strong>Lead:</strong>
+  <%= @project.lead.email%>
+</p>
+
+<%= link_to 'Edit', edit_project_path(@project) %> |
+<%= link_to 'Back', projects_path %>
+
+<hr>
+<h3>Team members</h3>
+
+<table>
+  <tr>
+    <th>email</th>
+    
+  </tr>
+  <% @project.members.each do |m| %>
+      <tr>
+        <td><%= m.user.email %></td>
+      </tr>
+  <% end %>
+</table>
+    <% if can? :manage, @project.members %>
+      <%= form_with(url: members_project_path(@project), method: "post") do %>
+        <%= label_tag(:email) %>
+        <%= select_tag :lead_id,options_from_collection_for_select( User.all, "id", "email") %>
+      <%= submit_tag("Add") %>
+      <% end %>
+    <% end %>
+        
+<hr>
+
+<h3>Listing tasks</h3>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Status</th>
+    <th>Project</th>
+    <th>Assignee</th>
+    <th>Reportee</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @project.tasks.each do |task| %>
+  <% if task.persisted? %>
+    <tr>
+      <td><%= task.name %></td>
+      <td><%= task.description %></td>
+      <td><%= task.status %></td>
+      <td><%= task.project.name %></td>
+      <td><%= task.assignee.email%></td>
+      <td><%= task.reportee.email %></td>
+
+      <td><%= link_to 'Show', [task.project, task] %></td>
+      <td><%= link_to 'Edit', edit_project_task_path(task.project, task) %></td>
+      <% if can? :destroy, @project %>
+      <td><%= link_to 'Destroy', [task.project, task], method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      <% end %>
+    </tr>
+  <% end %>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'Add New Task', new_project_task_path(@project.id) %>
